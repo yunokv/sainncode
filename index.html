@@ -5,21 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sainsbury's Barcode Generator</title>
   <style>
-    :root {
-      --main-orange: #f47738;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
-      background-color: var(--main-orange);
+      background-color: #f47738;
       color: #fff;
-      margin: 0;
-      padding: 1rem;
+      padding: 2rem;
       text-align: center;
+      position: relative;
       background-image:
         repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 20px),
         repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 20px);
@@ -33,17 +25,16 @@
       height: 100%;
       pointer-events: none;
       z-index: 0;
-      opacity: 0.08;
+      opacity: 0.4;
     }
 
     .watermark span {
       position: absolute;
-      color: rgba(255, 255, 255, 0.25);
-      font-size: 1.2rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 2rem;
       font-weight: bold;
       transform: rotate(-30deg);
       white-space: nowrap;
-      user-select: none;
     }
 
     .container {
@@ -51,50 +42,32 @@
       z-index: 1;
       background: #fff;
       color: #333;
-      padding: 1.5rem;
+      padding: 2rem;
       border-radius: 1rem;
-      max-width: 95%;
-      width: 100%;
-      margin: 2rem auto;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      max-width: 500px;
+      margin: 0 auto;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
     input, button {
-      padding: 0.75rem;
+      padding: 0.5rem;
       font-size: 1rem;
       margin: 0.5rem 0;
       width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 0.5rem;
-    }
-
-    button {
-      background-color: var(--main-orange);
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #d75f1e;
     }
 
     canvas {
       margin-top: 1rem;
-      max-width: 100%;
-      width: 100%;
-      height: auto;
       background: #fff;
-      border-radius: 0.5rem;
     }
 
     .link-under-canvas {
       margin-top: 0.5rem;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
     }
 
     .link-under-canvas a {
-      color: var(--main-orange);
+      color: #f47738;
       text-decoration: none;
       font-weight: bold;
     }
@@ -102,18 +75,7 @@
     .note {
       color: #c00;
       font-weight: bold;
-      font-size: 0.9rem;
       margin-top: 0.5rem;
-    }
-
-    @media (min-width: 600px) {
-      .container {
-        max-width: 500px;
-      }
-
-      .watermark span {
-        font-size: 1.5rem;
-      }
     }
   </style>
 </head>
@@ -140,7 +102,7 @@
       <a href="https://discord.gg/SuVMU2T9qK" target="_blank">https://discord.gg/SuVMU2T9qK</a>
     </div>
     <a id="downloadLink" download="barcode.png">
-      <button style="margin-top: 0.75rem;">Download as PNG</button>
+      <button>Download as PNG</button>
     </a>
   </div>
 
@@ -158,9 +120,12 @@
         sum += digit * weight;
       }
       let checkDigit = (10 - (sum % 10)) % 10;
+
+      // If even, increase by 1 to make it odd
       if (checkDigit % 2 === 0) {
         checkDigit = (checkDigit + 1) % 10;
       }
+
       return checkDigit;
     }
 
@@ -174,7 +139,11 @@
       }
 
       const numericProduct = productInput.replace(/\D/g, '');
-      let productDigits = numericProduct.length === 14 ? numericProduct.slice(0, -1) : numericProduct;
+      let productDigits = numericProduct;
+
+      if (productDigits.length === 14) {
+        productDigits = productDigits.slice(0, -1);
+      }
       productDigits = padLeft(productDigits, 13);
 
       const paddedPrice = padLeft(priceInput, 6);
@@ -184,19 +153,19 @@
 
       const canvas = document.getElementById("barcodeCanvas");
       const ctx = canvas.getContext("2d");
-      canvas.width = window.innerWidth < 600 ? 300 : 600;
+      canvas.width = 600;
       canvas.height = 200;
 
       JsBarcode(canvas, fullBarcode, {
         format: "CODE128",
         displayValue: true,
-        fontSize: 16,
+        fontSize: 18,
         width: 2,
         height: 100,
         margin: 10
       });
 
-      ctx.font = "14px Arial";
+      ctx.font = "16px Arial";
       ctx.fillStyle = "black";
       ctx.textAlign = "center";
       ctx.fillText("https://discord.gg/SuVMU2T9qK", canvas.width / 2, 190);
@@ -207,13 +176,13 @@
 
     const watermarkDiv = document.getElementById('watermark');
     const rows = 10;
-    const cols = 6;
+    const cols = 10;
     for (let y = 0; y < rows; y++) {
       for (let x = 0; x < cols; x++) {
         const span = document.createElement('span');
         span.innerText = 'SHARK';
         span.style.top = `${y * 100}px`;
-        span.style.left = `${x * 150}px`;
+        span.style.left = `${x * 200}px`;
         watermarkDiv.appendChild(span);
       }
     }
